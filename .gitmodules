@@ -10,3 +10,9 @@
 [submodule "uvdar_gazebo_plugin"]
 	path = uvdar_gazebo_plugin
 	url = git@github.com:ctu-mrs/uvdar_gazebo_plugin.git
+[submodule "camera_base"]
+	path = camera_base
+	url = git@github.com:KumarRobotics/camera_base.git
+[submodule "bluefox2"]
+	path = bluefox2
+	url = git@github.com:KumarRobotics/bluefox2.git
