@@ -12,7 +12,7 @@ from utils import add_default_args, get_video_input
 OSC_ADDRESS = "/mediapipe/pose"
 
 
-def draw_pose_rect(image, rect, color=(255, 0, 255), thickness=2):
+def draw_pose_rect(image, rect, color=(255, 0, 255), thickness=20):
     image_width = image.shape[1]
     image_height = image.shape[0]
 
