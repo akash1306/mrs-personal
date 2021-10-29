@@ -19,9 +19,10 @@ mp_pose = mp.solutions.pose
 
 class flyingPoseClass(object):
     def __init__(self):
-        self.landmarkpub = rospy.Publisher('/landmarkCoord' , floatarray)
+        self.landmarkpub = rospy.Publisher('/landmarkCoord' , Float64, queue_size=10)
 
         self.landmarkcoords = np.empty((3,33), dtype = 'object')
+        self.tempcoord = None
 
     def servicestarter(self):
         rospy.wait_for_service("/uav1/control_manager/velocity_reference")
@@ -65,10 +66,12 @@ class flyingPoseClass(object):
                 cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
                 if not results.pose_landmarks:
                     continue
-                for landname in mp_pose.PoseLandmark:
-                    print(landname)
-                    print(": ")
-                    print (results.pose_landmarks.landmark[landname].visibility)
+                self.tempcoord = results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].x 
+                self.landmarkpub.publish(self.tempcoord)
+                # for landname in mp_pose.PoseLandmark:
+                #     print(landname)
+                #     print(": ")
+                #     print (results.pose_landmarks.landmark[landname].visibility)
 
             # print(
             #     f'Nose coordinates: ('
