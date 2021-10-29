@@ -84,3 +84,14 @@ class flyingPoseClass(object):
 def main():
     rospy.init_node('PoseFormation', anonymous= True)
     rate = rospy.Rate(50)
+    flypos = flyingPoseClass()
+
+    while not rospy.is_shutdown():
+        flypos.calculateLandmarks()
+        rate.sleep()
+    rospy.spin()
+
+if __name__ == '__main__':
+    main()
+
+
