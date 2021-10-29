@@ -96,6 +96,7 @@ def main():
 
         mp_drawing.draw_landmarks(image, results.pose_landmarks, connections)
         cv2.imshow('MediaPipe OSC Pose', image)
+        
         if cv2.waitKey(5) & 0xFF == 27:
             break
     pose.close()
