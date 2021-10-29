@@ -3,9 +3,10 @@ import rospy
 import array
 from mrs_msgs.msg import ControlManagerDiagnostics
 from mrs_msgs.msg import Float64Stamped
-from mrs_msgs import VelocityReferenceStamped
+from mrs_msgs.msg import VelocityReferenceStamped
 from mrs_msgs.msg import ReferenceStamped
 from std_msgs.msg import Float64
+from misc.msg import floatarray
 import cv2
 import mediapipe as mp
 import math
@@ -18,7 +19,7 @@ mp_pose = mp.solutions.pose
 
 class flyingPoseClass(object):
     def __init__(self):
-        self.landmarkpub = rospy.Publisher('/landmarkCoord' , array)
+        self.landmarkpub = rospy.Publisher('/landmarkCoord' , floatarray)
 
         self.landmarkcoords = np.empty((3,33), dtype = 'object')
 
