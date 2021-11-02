@@ -1,4 +1,27 @@
 #!/usr/bin/env python3
+# Landmarks
+
+# 0. nose                   17. left_pinky
+# 1. left_eye_inner         18. right_pinky
+# 2. left_eve               19. left_index
+# 3. left_eye_outer         20. right_index
+# 4. right_eye_inner        21. left_thumb
+# 5. right_eye              22. right_thumb
+# 6. right_eye_outer        23. left_hip
+# 7. left_ear               24. right_hip
+# 8. right_ear              25. left_knee
+# 9. mouth_left             26. right_knee
+# 10. mouth_right           27. left_ankle
+# 11. left_shoulder         28. right_ankle
+# 12. right_shoulder        29. left_heel
+# 13. left_elbow            30. right_heel
+# 14. right_elbow           31. left_foot index
+# 15. left_wrist            32. right_foot_index
+# 16. right_wrist
+
+
+
+
 import rospy
 import array
 from mrs_msgs.msg import ControlManagerDiagnostics
@@ -25,7 +48,6 @@ class flyingPoseClass(object):
         self.landmarkcoords.x = array.array('f',(0 for f in range(0,33)))
         self.landmarkcoords.y = array.array('f',(0 for f in range(0,33)))
         self.landmarkcoords.vis = array.array('f',(0 for f in range(0,33)))
-        self.tempcoord = None
 
     def servicestarter(self):
         rospy.wait_for_service("/uav1/control_manager/velocity_reference")
@@ -41,9 +63,11 @@ class flyingPoseClass(object):
 
         # For webcam input:
         cap = cv2.VideoCapture(0)
+
         with mp_pose.Pose(
             min_detection_confidence=0.5,
             min_tracking_confidence=0.5) as pose:
+
             while cap.isOpened() and not rospy.is_shutdown():
                 success, image = cap.read()
                 if not success:
@@ -65,11 +89,13 @@ class flyingPoseClass(object):
                     results.pose_landmarks,
                     mp_pose.POSE_CONNECTIONS,
                     landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
+
                 # Flip the image horizontally for a selfie-view display.
                 cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
+
                 if not results.pose_landmarks:
                     continue
-                self.tempcoord = results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].x 
+                
                 i=0
                 for landname in mp_pose.PoseLandmark:
                     
@@ -81,11 +107,7 @@ class flyingPoseClass(object):
 
                 self.landmarkpub.publish(self.landmarkcoords)
 
-            # print(
-            #     f'Nose coordinates: ('
-            #     f'{results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].x }, '
-            #     f'{results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].y })'
-            # )
+
                 if cv2.waitKey(5) & 0xFF == 27:
                     break
         cap.release()
