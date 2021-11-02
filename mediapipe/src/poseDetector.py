@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 # Landmarks
 
 # 0. nose                   17. left_pinky
@@ -40,7 +41,8 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
 
-class flyingPoseClass(object):
+class PoseDetectorClass(object):
+    
     def __init__(self):
         self.landmarkpub = rospy.Publisher('/landmarkCoord' , floatarray, queue_size=10)
 
@@ -118,7 +120,7 @@ class flyingPoseClass(object):
 def main():
     rospy.init_node('PoseFormation', anonymous= True)
     rate = rospy.Rate(100)
-    flypos = flyingPoseClass()
+    flypos = PoseDetectorClass()
 
     flypos.calculateLandmarks()
 
