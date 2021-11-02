@@ -19,9 +19,12 @@ mp_pose = mp.solutions.pose
 
 class flyingPoseClass(object):
     def __init__(self):
-        self.landmarkpub = rospy.Publisher('/landmarkCoord' , Float64, queue_size=10)
+        self.landmarkpub = rospy.Publisher('/landmarkCoord' , floatarray, queue_size=10)
 
-        self.landmarkcoords = np.empty((3,33), dtype = 'object')
+        self.landmarkcoords = floatarray()
+        self.landmarkcoords.x = array.array('f',(0 for f in range(0,33)))
+        self.landmarkcoords.y = array.array('f',(0 for f in range(0,33)))
+        self.landmarkcoords.vis = array.array('f',(0 for f in range(0,33)))
         self.tempcoord = None
 
     def servicestarter(self):
@@ -41,7 +44,7 @@ class flyingPoseClass(object):
         with mp_pose.Pose(
             min_detection_confidence=0.5,
             min_tracking_confidence=0.5) as pose:
-            while cap.isOpened():
+            while cap.isOpened() and not rospy.is_shutdown():
                 success, image = cap.read()
                 if not success:
                     print("Ignoring empty camera frame.")
@@ -67,11 +70,16 @@ class flyingPoseClass(object):
                 if not results.pose_landmarks:
                     continue
                 self.tempcoord = results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].x 
-                self.landmarkpub.publish(self.tempcoord)
-                # for landname in mp_pose.PoseLandmark:
-                #     print(landname)
-                #     print(": ")
-                #     print (results.pose_landmarks.landmark[landname].visibility)
+                i=0
+                for landname in mp_pose.PoseLandmark:
+                    
+                    self.landmarkcoords.x[i] = results.pose_landmarks.landmark[landname].x 
+                    self.landmarkcoords.y[i] = results.pose_landmarks.landmark[landname].y
+                    self.landmarkcoords.vis[i] = results.pose_landmarks.landmark[landname].visibility 
+                    i+=1
+
+
+                self.landmarkpub.publish(self.landmarkcoords)
 
             # print(
             #     f'Nose coordinates: ('
@@ -87,12 +95,11 @@ class flyingPoseClass(object):
 
 def main():
     rospy.init_node('PoseFormation', anonymous= True)
-    rate = rospy.Rate(50)
+    rate = rospy.Rate(100)
     flypos = flyingPoseClass()
 
-    while not rospy.is_shutdown():
-        flypos.calculateLandmarks()
-        rate.sleep()
+    flypos.calculateLandmarks()
+
     rospy.spin()
 
 if __name__ == '__main__':
