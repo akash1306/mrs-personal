@@ -30,6 +30,7 @@ from mrs_msgs.msg import Float64Stamped
 from mrs_msgs.msg import VelocityReferenceStamped
 from mrs_msgs.msg import ReferenceStamped
 from std_msgs.msg import Float64
+from std_msgs.msg import Int16
 from misc.msg import floatarray
 import cv2
 import mediapipe as mp
@@ -45,21 +46,38 @@ class PoseDetectorClass(object):
     
     def __init__(self):
         self.landmarkpub = rospy.Publisher('/landmarkCoord' , floatarray, queue_size=10)
+        self.gestuyrepub = rospy.Publisher('/gesture' , Int16, queue_size=10)
 
         self.landmarkcoords = floatarray()
         self.landmarkcoords.x = array.array('f',(0 for f in range(0,33)))
         self.landmarkcoords.y = array.array('f',(0 for f in range(0,33)))
         self.landmarkcoords.vis = array.array('f',(0 for f in range(0,33)))
 
+
     def servicestarter(self):
         rospy.wait_for_service("/uav1/control_manager/velocity_reference")
 
         try:
             service1 = rospy.ServiceProxy("/uav1/control_manager/velocity_reference", VelocityReferenceStamped)
-            resp1 = service1(self.landmarkcoords)
+            #resp1 = service1(self.landmarkcoords)
 
         except rospy.ServiceException as e:
             print("Service call failed: %s"%e)
+
+
+    def calculateAngle(self, firstPointx, firstPointy, midPointx, midPointy, endPointx, endPointy):
+
+        landmarkAngle = math.degrees(math.atan2(endPointy - midPointy, endPointx - midPointx) - math.atan2(firstPointy - midPointy , firstPointx - midPointx))
+        landmarkAngle = abs(landmarkAngle)
+
+        if landmarkAngle >180:
+            landmarkAngle = 360 - landmarkAngle
+
+
+        return landmarkAngle
+
+        
+
 
     def calculateLandmarks(self):
 
@@ -110,6 +128,25 @@ class PoseDetectorClass(object):
                 self.landmarkpub.publish(self.landmarkcoords)
 
 
+                #Calculate angle of Right hand with the shoulder line
+                angleRightHandShoulder = self.calculateAngle(self.landmarkcoords.x[16], 
+                self.landmarkcoords.y[16], self.landmarkcoords.x[12], self.landmarkcoords.y[12],
+                self.landmarkcoords.x[11], self.landmarkcoords.y[11])
+
+                #Calculate angle of Left hand with the shoulder line
+                angleLeftHandShoulder = self.calculateAngle(self.landmarkcoords.x[15], 
+                self.landmarkcoords.y[15], self.landmarkcoords.x[12], self.landmarkcoords.y[12],
+                self.landmarkcoords.x[11], self.landmarkcoords.y[11])
+
+                print("Left: ")
+                print(angleLeftHandShoulder)
+                print("Right: ")
+                print(angleRightHandShoulder)
+
+                if angleRightHandShoulder >165 and angleRightHandShoulder < 195 and angleLeftHandShoulder >75 and angleLeftHandShoulder< 105:
+                    print("Go Right")
+
+
                 if cv2.waitKey(5) & 0xFF == 27:
                     break
         cap.release()
@@ -122,6 +159,7 @@ def main():
     rate = rospy.Rate(100)
     flypos = PoseDetectorClass()
 
+    
     flypos.calculateLandmarks()
 
     rospy.spin()
