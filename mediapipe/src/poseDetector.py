@@ -135,15 +135,15 @@ class PoseDetectorClass(object):
 
                 #Calculate angle of Left hand with the shoulder line
                 angleLeftHandShoulder = self.calculateAngle(self.landmarkcoords.x[15], 
-                self.landmarkcoords.y[15], self.landmarkcoords.x[12], self.landmarkcoords.y[12],
-                self.landmarkcoords.x[11], self.landmarkcoords.y[11])
+                self.landmarkcoords.y[15], self.landmarkcoords.x[11], self.landmarkcoords.y[11],
+                self.landmarkcoords.x[12], self.landmarkcoords.y[12])
 
-                print("Left: ")
-                print(angleLeftHandShoulder)
-                print("Right: ")
-                print(angleRightHandShoulder)
+                # print("Left: ")
+                # print(angleLeftHandShoulder)
+                # print("Right: ")
+                # print(angleRightHandShoulder)
 
-                if angleRightHandShoulder >165 and angleRightHandShoulder < 195 and angleLeftHandShoulder >75 and angleLeftHandShoulder< 105:
+                if angleRightHandShoulder >155 and angleRightHandShoulder < 175 and angleLeftHandShoulder >95 and angleLeftHandShoulder< 115:
                     print("Go Right")
 
 
