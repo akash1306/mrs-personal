@@ -27,6 +27,8 @@
 
 #include <string>
 
+#include<gesture_flocking/Neighbor.h>
+
 struct proximalPar {
   
   double _desired_distance_;

@@ -1,4 +1,5 @@
-#include<flocker.h>
+#include<flocker.hpp>
+
 
 class FlockerClass
 {
@@ -12,6 +13,7 @@ class FlockerClass
 
         double getProximalMagnitude(double range);
 
+        void initializeSubscribers();
         void neighborCallback();
 
 
@@ -26,3 +28,5 @@ double FlockerClass::getProximalMagnitude(double range)
     return proximalMag;
 
 }
+
+
