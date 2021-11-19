@@ -37,6 +37,12 @@ private:
 
     std::string _uav_name_;
 
+    ros::NodeHandle nh_; 
+
+    bool is_initialized_;
+    bool has_this_pose_ ;
+    bool has_started_swarming_mode_ ;
+    bool last_message_invalid_      ;
     
 };
 
