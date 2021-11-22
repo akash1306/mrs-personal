@@ -23,7 +23,7 @@
 #include <map>
 #include <mutex>
 
-#include<gesture_flocking/Neighbor.h>>
+#include<gesture_flocking/Neighbor.h>
 
 
 
@@ -31,18 +31,24 @@ class neighbor_class
 {
 public:
     neighbor_class(ros::NodeHandle* nodehandle);
+    bool eland_tracker = false;
 
 private:
-    bool is_initialized_, has_this_pose_, has_started_swarming_mode_, last_message_invalid_;
+    ros::NodeHandle nh_; 
 
     std::string _uav_name_;
 
-    ros::NodeHandle nh_; 
-
+    
+// |-----------------------------------Flags-----------------------------------|
     bool is_initialized_;
     bool has_this_pose_ ;
     bool has_started_swarming_mode_ ;
     bool last_message_invalid_      ;
+
+// |-----------------------------------Subscriber Callbacks-----------------------------------|
+
+    void thisGPSCallback(const nav_msgs::Odometry::ConstPtr& odom);
+    void thisUAVHeight(const mrs_msgs::Float64Stamped::ConstPtr& height);
     
 };
 
