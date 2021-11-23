@@ -27,16 +27,24 @@
 
 
 
-class neighbor_class
+class NeighborClass
 {
 public:
-    neighbor_class(ros::NodeHandle* nodehandle);
+    NeighborClass(ros::NodeHandle* nodehandle);
     bool eland_tracker = false;
 
 private:
-    ros::NodeHandle nh_; 
+    ros::NodeHandle nh; 
+    ros::Subscriber this_uav_gps_odom;
+    ros::Subscriber this_uav_local_height;
 
-    std::string _uav_name_;
+    void InitializeSubscribers();
+
+    std::string                 _sensor_type_;
+    std::string                 _this_uav_name_;
+    std::vector<std::string>    _uav_names_;
+
+    bool                        _use_fixed_heading_;
 
     
 // |-----------------------------------Flags-----------------------------------|
@@ -47,8 +55,8 @@ private:
 
 // |-----------------------------------Subscriber Callbacks-----------------------------------|
 
-    void thisGPSCallback(const nav_msgs::Odometry::ConstPtr& odom);
-    void thisUAVHeight(const mrs_msgs::Float64Stamped::ConstPtr& height);
+    void ThisGPSCallback(const nav_msgs::Odometry::ConstPtr& odom);
+    void ThisUAVHeight(const mrs_msgs::Float64Stamped::ConstPtr& height);
     
 };
 

@@ -125,15 +125,19 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories(
-  include
-  ${catkin_INCLUDE_DIRS}
-  ${Eigen_INCLUDE_DIRS}
-)
 
 add_executable(formationflier src/formationscript.cpp)
 target_link_libraries(formationflier ${catkin_LIBRARIES}
 ${Eigen_LIBRARIES}
+)
+add_executable(neighbortracker src/neighbor_tracker.cpp)
+target_link_libraries(neighbortracker ${catkin_LIBRARIES}
+${Eigen_LIBRARIES}
+)
+include_directories(
+  include/gesture_flocking
+  ${catkin_INCLUDE_DIRS}
+  ${Eigen_INCLUDE_DIRS}
 )
 
 
