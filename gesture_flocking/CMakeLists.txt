@@ -125,19 +125,18 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
+add_library(UtilMath src/math_utils.cpp)
 
 add_executable(formationflier src/formationscript.cpp)
-target_link_libraries(formationflier ${catkin_LIBRARIES}
+target_link_libraries(formationflier UtilMath ${catkin_LIBRARIES}
 ${Eigen_LIBRARIES}
 )
 add_executable(neighbortracker src/neighbor_tracker.cpp)
-target_link_libraries(neighbortracker ${catkin_LIBRARIES}
+target_link_libraries(neighbortracker UtilMath ${catkin_LIBRARIES}
 ${Eigen_LIBRARIES}
 )
-add_executable(utilmath src/math_utils.cpp)
-target_link_libraries(utilmath ${catkin_LIBRARIES}
-${Eigen_LIBRARIES}
-)
+
+
 include_directories(
   include/gesture_flocking
   ${catkin_INCLUDE_DIRS}
