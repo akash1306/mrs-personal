@@ -34,9 +34,11 @@ public:
     bool eland_tracker = false;
 
 private:
-    ros::NodeHandle nh; 
-    ros::Subscriber this_uav_gps_odom;
-    ros::Subscriber this_uav_local_height;
+    ros::NodeHandle                 nh; 
+    ros::Subscriber                 this_uav_gps_odom;
+    ros::Subscriber                 this_uav_local_height;
+    std::vector<ros::Subscriber>    sub_gps_odom_uavs_;
+    std::vector<ros::Subscriber>    sub_height_odom_local_uavs_;
 
     void InitializeSubscribers();
 
@@ -44,7 +46,12 @@ private:
     std::string                 _this_uav_name_;
     std::vector<std::string>    _uav_names_;
 
+    std::map<unsigned int, geometry_msgs::PointStamped> neighbors_position_;
+
     bool                        _use_fixed_heading_;
+
+    mrs_lib::Transformer                     tfr_;
+    std::optional<mrs_lib::TransformStamped> tf_output_;
 
     
 // |-----------------------------------Flags-----------------------------------|
@@ -55,9 +62,20 @@ private:
 
 // |-----------------------------------Subscriber Callbacks-----------------------------------|
 
-    void ThisGPSCallback(const nav_msgs::Odometry::ConstPtr& odom);
-    void ThisUAVHeight(const mrs_msgs::Float64Stamped::ConstPtr& height);
-    
+    void    ThisGPSCallback(const nav_msgs::Odometry::ConstPtr& odom);
+    void    ThisUAVHeight(const mrs_msgs::Float64Stamped::ConstPtr& height);
+    void    CallbackNeighborsUsingGPSOdom(const nav_msgs::Odometry::ConstPtr& 
+                                        odom, const unsigned int uav_id);
+    void    CallbackNeighborsUsingHeightOdomLocal(const 
+            mrs_msgs::Float64Stamped::ConstPtr& height, const unsigned int 
+            uav_id);
+
+    ros::ServiceClient srv_client_land_;
+
+    void           callbackTimerPubNeighbors(const ros::TimerEvent& event);
+    ros::Timer     timer_pub_neighbors_;
+    ros::Publisher pub_neighbors_;
+  
 };
 
 #endif
