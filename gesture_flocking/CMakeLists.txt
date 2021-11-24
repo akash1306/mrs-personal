@@ -134,6 +134,10 @@ add_executable(neighbortracker src/neighbor_tracker.cpp)
 target_link_libraries(neighbortracker ${catkin_LIBRARIES}
 ${Eigen_LIBRARIES}
 )
+add_executable(utilmath src/math_utils.cpp)
+target_link_libraries(utilmath ${catkin_LIBRARIES}
+${Eigen_LIBRARIES}
+)
 include_directories(
   include/gesture_flocking
   ${catkin_INCLUDE_DIRS}

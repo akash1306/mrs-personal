@@ -96,7 +96,7 @@ int main(int argc, char** argv){
   ros::NodeHandle nh("~"); 
   ROS_INFO("Main: Instantiating an object of type NeighborClass");
   NeighborClass n_obj(&nh);
-  
+  return 0;
   
 }
 
