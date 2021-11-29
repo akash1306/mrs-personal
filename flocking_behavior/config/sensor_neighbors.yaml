@@ -1,0 +1,2 @@
+sensor_type: "gps" # {gps, uvdar}
+use_fixed_heading: false
