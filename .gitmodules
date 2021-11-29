@@ -1,9 +1,6 @@
 [submodule "formationpkg"]
 	path = formationpkg
 	url = git@github.com:akash1306/formationpkg.git
-[submodule "flocking_behavior"]
-	path = flocking_behavior
-	url = git@github.com:tiagopn/flocking_behavior.git
 [submodule "uvdar_core"]
 	path = uvdar_core
 	url = git@github.com:ctu-mrs/uvdar_core.git
