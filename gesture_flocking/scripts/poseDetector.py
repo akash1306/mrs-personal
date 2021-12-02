@@ -38,20 +38,115 @@ import math
 import numpy as np
 import time
 import os
+import sys
+import roslib
+import rospy
+
+# Ros Messages
+from sensor_msgs.msg import CompressedImage, Image
+
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
+
+from cv_bridge import CvBridge
 
 class PoseDetectorClass(object):
     
     def __init__(self):
         self.landmarkpub = rospy.Publisher('/landmarkCoord' , floatarray, queue_size=10)
         self.gestuyrepub = rospy.Publisher('/gesture' , Int16, queue_size=10)
-
+        self.image_pub = rospy.Publisher("/output/image_raw", Image, queue_size=10)
+        self.subscriber = rospy.Subscriber("/uav7/cam_out", Image, self.callback,  queue_size = 1)
         self.landmarkcoords = floatarray()
         self.landmarkcoords.x = array.array('f',(0 for f in range(0,33)))
         self.landmarkcoords.y = array.array('f',(0 for f in range(0,33)))
         self.landmarkcoords.vis = array.array('f',(0 for f in range(0,33)))
+        
+
+
+    def callback(self, ros_data : Image):
+        br = CvBridge()
+        # np_arr = np.fromstring(ros_data.data, np.uint8)
+        image = br.imgmsg_to_cv2(ros_data)
+        print(image[0,0,:])
+        # self.image_pub.publish(ros_data)
+        # cv2.imshow("Lol", image)
+       
+        with mp_pose.Pose(
+            min_detection_confidence=0.5,
+            min_tracking_confidence=0.5) as pose:
+
+            
+                # success, image = cap.read()
+                # if not success:
+                #     print("Ignoring empty camera frame.")
+                #     # If loading a video, use 'break' instead of 'continue'.
+                #     continue
+
+                # To improve performance, optionally mark the image as not writeable to
+                # pass by reference.
+                # image.flags.writeable = False
+                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                
+                results = pose.process(image)
+
+                # Draw the pose annotation on the image.
+                # image.flags.writeable = True
+                
+                image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+                
+                
+                mp_drawing.draw_landmarks(
+                    image,
+                    results.pose_landmarks,
+                    mp_pose.POSE_CONNECTIONS,
+                    landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
+                image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+                to_ros = br.cv2_to_imgmsg(image)
+                to_ros.encoding = "rgb8"
+                self.image_pub.publish(to_ros)
+                # Flip the image horizontally for a selfie-view display.
+                # cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
+
+                
+                
+                i=0
+                for landname in mp_pose.PoseLandmark:
+                    
+                    self.landmarkcoords.x[i] = results.pose_landmarks.landmark[landname].x 
+                    self.landmarkcoords.y[i] = results.pose_landmarks.landmark[landname].y
+                    self.landmarkcoords.vis[i] = results.pose_landmarks.landmark[landname].visibility 
+                    i+=1
+
+
+                print(self.landmarkcoords)
+
+
+                # #Calculate angle of Right hand with the shoulder line
+                # angleRightHandShoulder = self.calculateAngle(self.landmarkcoords.x[16], 
+                # self.landmarkcoords.y[16], self.landmarkcoords.x[12], self.landmarkcoords.y[12],
+                # self.landmarkcoords.x[11], self.landmarkcoords.y[11])
+
+                # #Calculate angle of Left hand with the shoulder line
+                # angleLeftHandShoulder = self.calculateAngle(self.landmarkcoords.x[15], 
+                # self.landmarkcoords.y[15], self.landmarkcoords.x[11], self.landmarkcoords.y[11],
+                # self.landmarkcoords.x[12], self.landmarkcoords.y[12])
+
+                # # print("Left: ")
+                # # print(angleLeftHandShoulder)
+                # # print("Right: ")
+                # # print(angleRightHandShoulder)
+
+                # if angleRightHandShoulder >155 and angleRightHandShoulder < 175 and angleLeftHandShoulder >95 and angleLeftHandShoulder< 115:
+                #     print("Go Right")
+
+
+                
+        # cap.release()
+
+
+        
 
 
     def servicestarter(self):
@@ -83,6 +178,8 @@ class PoseDetectorClass(object):
 
         # For webcam input:
         cap = cv2.VideoCapture(0)
+        # rate = rospy.Rate(50)
+
 
         with mp_pose.Pose(
             min_detection_confidence=0.5,
@@ -149,6 +246,8 @@ class PoseDetectorClass(object):
 
                 if cv2.waitKey(5) & 0xFF == 27:
                     break
+
+                # rate.sleep()
         cap.release()
 
     
@@ -156,10 +255,10 @@ class PoseDetectorClass(object):
 
 def main():
     rospy.init_node('PoseFormation', anonymous= True)
-    rate = rospy.Rate(100)
+    rate = rospy.Rate(50)
     flypos = PoseDetectorClass()
 
-    
+    #rospy.sleep(1)
     flypos.calculateLandmarks()
 
     rospy.spin()
